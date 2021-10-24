@@ -1,4 +1,4 @@
-#This is human class
+#This is Animal class
 class Animal:
     name    =   ''
     age     =   0
@@ -39,5 +39,4 @@ class WildAnimal:
     def setName(self,name):
         print(f'{self} the name is {name}')
         self.name = name
-
 
