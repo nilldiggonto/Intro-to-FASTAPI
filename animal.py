@@ -26,5 +26,18 @@ class Animal:
     def description(self):
         print(f'{self.name} is a {self.gender} and {self.age} years old')
 
+###########################
+class WildAnimal:
+    def __init__(self,name):
+        self.name = name
+        print('WildAnimal class')
+    
+    ##
+    def roar(self):
+        print(f'{self.name} roaring')
+    
+    def setName(self,name):
+        print(f'{self} the name is {name}')
+        self.name = name
 
 
