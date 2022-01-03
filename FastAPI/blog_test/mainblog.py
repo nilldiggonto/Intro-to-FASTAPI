@@ -23,7 +23,7 @@ def get_db():
 #---CREATE-------------
 @app.post('/create',status_code=201)
 def create(request:BlogSchema,db : Session = Depends(get_db) ):
-    new_blog = Blog(title= request.title,body=request.body)
+    new_blog = Blog(title= request.title,body=request.body,user_id=1)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
@@ -39,14 +39,14 @@ def blog(db:Session = Depends(get_db)):
     return blog_list
 
 #Fetching SINGLE BLOG
-@app.get('/blog/{id}',response_model=ShowBlog, status_code=200)
+@app.get('/blog/{id}', status_code=200) #response_model=ShowBlog,
 def blogSingle(response:Response,id, db:Session = Depends(get_db)):
     blog = db.query(Blog).filter(Blog.id == id).first()
     data = []
     if not blog:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {'detail': f'No blog with {id} found'}
-    data = {'title':blog.title,'body':blog.body}
+    data = {'title':blog.title,'body':blog.body,'user':{"name":blog.owner.name,"email":blog.owner.email}}
     return data
 
 #-------EDIT
@@ -86,9 +86,14 @@ def createUser(request:User,db:Session = Depends(get_db)):
 @app.get('/user/{id}',tags=['user'])
 def showUser(id:int,db:Session = Depends(get_db)):
     user = db.query(UserModel).filter(UserModel.id == id).first()
+    # user.blogs.
+    blog_list = []
+    for b in user.blogs:
+        blog_list.append({'name':b.title,'content':b.body})
+
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No Such User Found")
-    return {'status':'success','username':user.name}
+    return {'status':'success','username':user.name,'blog':blog_list}
 
 #--- FOR DEBUG
 if __name__ == "__main__":
