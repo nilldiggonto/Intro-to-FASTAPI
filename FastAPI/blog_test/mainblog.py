@@ -6,19 +6,26 @@ import uvicorn
 from schemas import BlogSchema,ShowBlog,User
 from sqlalchemy.orm import Session
 from models import Blog,UserModel
-from db_connect import engine,Base,sessionLocal
+from db_connect import engine,Base,sessionLocal,get_db
 from typing import List
 from passlib.context import CryptContext
+from routes import blogRoute
+# import sys
+# from os import path
+
+# sys.path.append(path.join(path.dirname(__file__), '..'))
 
 app = FastAPI()
 Base.metadata.create_all(engine)
+app.include_router(blogRoute.router)
+
 #--------------------- db connection
-def get_db():
-    db = sessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db():
+#     db = sessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 #---CREATE-------------
 @app.post('/create',status_code=201)
@@ -30,13 +37,13 @@ def create(request:BlogSchema,db : Session = Depends(get_db) ):
     data = {'status':'success','info':'created','title':request.title,'new_blog':new_blog}
     return data
 
-#---Getting BLOG LIST
-@app.get('/blog',response_model=List[ShowBlog])
-def blog(db:Session = Depends(get_db)):
-    blogs = db.query(Blog).all()
-    blog_list = [{'id':b.id,'title':b.title,'body':b.body} for b in blogs]
-    # data = {'status':'success','blog':blog_list}
-    return blog_list
+# #---Getting BLOG LIST
+# @app.get('/blog',response_model=List[ShowBlog])
+# def blog(db:Session = Depends(get_db)):
+#     blogs = db.query(Blog).all()
+#     blog_list = [{'id':b.id,'title':b.title,'body':b.body} for b in blogs]
+#     # data = {'status':'success','blog':blog_list}
+#     return blog_list
 
 #Fetching SINGLE BLOG
 @app.get('/blog/{id}', status_code=200) #response_model=ShowBlog,
